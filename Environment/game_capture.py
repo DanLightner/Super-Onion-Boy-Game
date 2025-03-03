@@ -1,6 +1,8 @@
 import mss
 import numpy as np
 import cv2
+import pyautogui
+import matplotlib.pyplot as plt
 
 
 def capture_screen(region=None):
@@ -16,13 +18,23 @@ def capture_screen(region=None):
     """
     with mss.mss() as sct:
         # Use the specified region or default to the primary monitor
-        screenshot = sct.grab(region) if region else sct.grab(sct.monitors[1])
+        screenshot = sct.grab(region) if region else sct.grab(sct.monitors[2])
         # Convert screenshot to numpy array
         img = np.array(screenshot)
         # Convert from BGRA to grayscale for simpler processing
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+        # Display the image using OpenCV
+        cv2.imshow("Captured Screen", img)
+        cv2.waitKey(0)  # Press any key to close the window
+        cv2.destroyAllWindows()
         return img
 
+# Call the function and verify it captures the screen
+#captured_image = capture_screen()
+
+# Check the shape and type of the output
+#print("Image Type:", type(captured_image))
+#print("Image Shape:", captured_image.shape)
 
 def detect_game_window():
     """
@@ -31,18 +43,43 @@ def detect_game_window():
     Returns:
         dict: Region dictionary with 'top', 'left', 'width', 'height' or None if not found
     """
-    # TODO: Implement window detection logic
-    # This could use template matching to find the game window
-    # or rely on a fixed position set by the user
 
-    # Example placeholder implementation:
+    # Get the game window
+    windows = pyautogui.getWindowsWithTitle("Super Onion Boy")
+
+    if not windows:  # Check if the list is empty
+        print("Error: Super Onion Boy window not found.")
+        return None
+    else:
+        return "it worked"
+
+
+    onionboy = windows[0]  # Get the first matching window
+
+    onionboy.resizeTo(322, 221)
+    onionboy.moveTo(
+        779, -711)
+    # Move the cursor to the top-left corner of the game window
+    pyautogui.moveTo(onionboy.left + onionboy.width / 2, onionboy.top + onionboy.height / 2)
+    onionboy.click()
+
+
     return {
-        'top': 100,
-        'left': 100,
-        'width': 800,
-        'height': 600
+        'top': onionboy.top,
+        'left': onionboy.left,
+        'width': onionboy.width,
+        'height': onionboy.height
     }
 
+
+game_window = detect_game_window()
+
+if game_window:
+    print("Game window positioned:", game_window)
+
+# Test function
+if game_window:
+    print("Game window detected:", game_window)
 
 def detect_game_over():
     """
