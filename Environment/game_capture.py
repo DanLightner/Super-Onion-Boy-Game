@@ -11,11 +11,7 @@ lost_life_template = cv2.imread('lost_life_template.png', cv2.IMREAD_GRAYSCALE)
 
 
 game_window = {'top': -690, 'left': 780, 'width': 340, 'height': 225}
-
-# Amount to crop from each side
-crop_pixels = 10  # Adjust as needed
-
-# Adjusted window region
+crop_pixels = 10
 cropped_window = {
     'top': game_window['top'] + crop_pixels,
     'left': game_window['left'] + crop_pixels,
@@ -24,16 +20,6 @@ cropped_window = {
 }
 
 def capture_screen(region=cropped_window):
-    """
-    Capture a screenshot of the game window.
-
-    Args:
-        region (dict, optional): Dictionary with keys 'top', 'left', 'width', 'height' defining the region to capture.
-                                If None, captures the primary monitor.
-
-    Returns:
-        numpy.ndarray: Grayscale image of the captured region.
-    """
     with mss.mss() as sct:
         # Use the specified region or default to the primary monitor
         screenshot = sct.grab(region) if region else sct.grab(sct.monitors[2])
@@ -78,7 +64,7 @@ def detect_game_window():
     }
 
 
-game_window = detect_game_window()
+#game_window = detect_game_window()
 
 #if game_window:
    #print("Game window positioned:", game_window)
@@ -102,12 +88,6 @@ def detect_game_over(cropped_window):
         screenshot = sct.grab(region)  # Capture only the top portion
         img = np.array(screenshot)
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)  # Convert to grayscale for matching
-
-        # Display the captured image for debugging purposes
-        cv2.imshow("Captured Image", img)
-        cv2.waitKey(0)  # Wait until a key is pressed
-        cv2.destroyAllWindows()
-
         # Match the "Game Over" template
         result_game_over = cv2.matchTemplate(img_gray, game_over_template, cv2.TM_CCOEFF_NORMED)
         result_lost_life = cv2.matchTemplate(img_gray, lost_life_template, cv2.TM_CCOEFF_NORMED)
@@ -133,3 +113,18 @@ def detect_player(frame):
     # TODO: Implement player detection
     # Could use template matching, contour detection, or other CV techniques
     return None
+
+
+
+# TEST ALL METHODS HERE
+#
+'''
+detect_game_window()
+captured_image = capture_screen()
+print("Image Type:", type(captured_image))
+
+if detect_game_over(cropped_window):
+    print("Game Over")
+else:
+    print("Game is Still running")
+'''
